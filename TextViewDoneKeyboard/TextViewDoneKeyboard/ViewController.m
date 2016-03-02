@@ -20,13 +20,18 @@
     [super viewDidLoad];
     self.textView.layer.borderWidth=1;
     [self observeKeyboard];
-    
+    self.automaticallyAdjustsScrollViewInsets=NO; // avoid the
 }
 - (void)observeKeyboard {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillChangeFrameNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
 }
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    self.textView.contentOffset=CGPointMake(0,0);
 
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
@@ -34,6 +39,8 @@
 #pragma mark - button events
 - (IBAction)submitClicked:(id)sender {
     NSLog(@"textView.text=%@",self.textView.text);
+    [self debugViewSize:self.textView withTag:@"textView"];
+    [self debugCGPoint:self.textView.contentOffset WithFormat:@""];
     [self.textView resignFirstResponder];
 }
 
@@ -62,4 +69,30 @@
         [self.view layoutIfNeeded];
     }];
 }
+
+-(void) debugViewSize:(UIView *) view withTag:(NSString *) tag
+{
+    NSLog(@"[%@] (%.0f,%.0f,%.0f,%.0f)"
+          ,tag
+          ,view.frame.origin.x
+          ,view.frame.origin.y
+          ,view.frame.size.width
+          ,view.frame.size.height
+          );
+}
+
+-(void) debugCGPoint:(CGPoint) point WithFormat:(NSString *) format,...
+{
+    va_list arguments;
+    
+    va_start(arguments,format);
+    
+    id result;
+    
+    result=[[NSString alloc] initWithFormat:format arguments:arguments];
+    va_end(arguments);
+    
+    NSLog(@"[CGPoint] (%f,%f) %@",point.x,point.y,result);
+}
+
 @end
